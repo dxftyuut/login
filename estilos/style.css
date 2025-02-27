@@ -3,7 +3,7 @@
 /*
 paleta de cores
 
-azul=#0554F2
+azul=
 azulclaro=#04D9D9
 azulgelo=#D8F2ED
 vermelho=#F20505
@@ -37,9 +37,13 @@ section#login {
     height: 500px;
     border-radius: 20px;
     box-shadow:0px 0px 10px rgba(0, 0, 0, 0.473);
+
+    transition: width .6s, height .6s;
+    transition-timing-function: ease;
 }
 
 section#login > div#imagem {
+    display: block;
     background: url(../imagens/pexels-rednguyen-27110088.jpg) no-repeat;
     background-size: cover;
     background-position: center left;
@@ -47,6 +51,7 @@ section#login > div#imagem {
 }
 
 section#login > div#formulario {
+    display: block;
     padding: 10px;
-
+    
 }
