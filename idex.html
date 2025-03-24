@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo 3D com Controle de Câmera por Mouse</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background-color: #87CEEB;
+    }
+
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.js"></script>
+
+  <script>
+    // Cena e câmera
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    
+    // Renderizador
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    
+    // Luz
+    const light = new THREE.AmbientLight(0x404040); // Luz suave
+    scene.add(light);
+    
+    // Criar um cubo para o "chão"
+    const geometry = new THREE.BoxGeometry(1000, 1, 1000);
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const ground = new THREE.Mesh(geometry, material);
+    ground.position.y = -0.5;
+    scene.add(ground);
+    
+    // Criar um cubo simples para representar o jogador
+    const playerGeometry = new THREE.BoxGeometry(1, 2, 1);
+    const playerMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    const player = new THREE.Mesh(playerGeometry, playerMaterial);
+    scene.add(player);
+    
+    // Posicionar a câmera
+    camera.position.z = 10;
+    camera.position.y = 2;
+
+    // OrbitControls para mover a câmera com o mouse
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true; // Ativa a suavização do movimento da câmera
+    controls.dampingFactor = 0.25; // Fator de suavização
+    controls.screenSpacePanning = false; // Impede a movimentação para cima e para baixo
+    controls.maxPolarAngle = Math.PI / 2; // Impede a câmera de virar para baixo
+
+    // Função para atualizar a cena
+    function animate() {
+      requestAnimationFrame(animate);
+
+      controls.update(); // Atualiza os controles
+
+      renderer.render(scene, camera);
+    }
+
+    // Inicializando a animação
+    animate();
+  </script>
+</body>
+</html>

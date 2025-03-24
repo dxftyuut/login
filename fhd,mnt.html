@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Bolas</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #gameArea {
+            position: relative;
+            width: 600px;
+            height: 400px;
+            background-color: #e0e0e0;
+            border: 2px solid #333;
+        }
+
+        .bola {
+            width: 30px;
+            height: 30px;
+            background-color: #ff0000;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .player {
+            width: 40px;
+            height: 40px;
+            background-color: #00ff00;
+            border-radius: 50%;
+            position: absolute;
+            left: 270px;
+            bottom: 10px;
+        }
+
+        #score {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameArea">
+        <div class="player" id="player"></div>
+    </div>
+    <div id="score">Pontuação: 0</div>
+
+    <script>
+        const gameArea = document.getElementById('gameArea');
+        const player = document.getElementById('player');
+        const scoreElement = document.getElementById('score');
+        let score = 0;
+
+        const gameWidth = gameArea.offsetWidth;
+        const gameHeight = gameArea.offsetHeight;
+
+        // Player Movement
+        let playerX = player.offsetLeft;
+        let playerY = player.offsetTop;
+        const playerSpeed = 5;
+
+        // Criação de bolas
+        const bolas = [];
+        function createBola() {
+            const bola = document.createElement('div');
+            bola.classList.add('bola');
+            bola.style.left = Math.random() * (gameWidth - 30) + 'px';
+            bola.style.top = Math.random() * (gameHeight - 30) + 'px';
+            gameArea.appendChild(bola);
+            bolas.push(bola);
+        }
+
+        function movePlayer() {
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'ArrowLeft' && playerX > 0) {
+                    playerX -= playerSpeed;
+                } else if (event.key === 'ArrowRight' && playerX < gameWidth - 40) {
+                    playerX += playerSpeed;
+                } else if (event.key === 'ArrowUp' && playerY > 0) {
+                    playerY -= playerSpeed;
+                } else if (event.key === 'ArrowDown' && playerY < gameHeight - 40) {
+                    playerY += playerSpeed;
+                }
+
+                player.style.left = playerX + 'px';
+                player.style.top = playerY + 'px';
+            });
+        }
+
+        function checkCollision() {
+            bolas.forEach((bola, index) => {
+                const bolaRect = bola.getBoundingClientRect();
+                const playerRect = player.getBoundingClientRect();
+
+                if (
+                    playerRect.left < bolaRect.right &&
+                    playerRect.right > bolaRect.left &&
+                    playerRect.top < bolaRect.bottom &&
+                    playerRect.bottom > bolaRect.top
+                ) {
+                    // A bola foi pegada
+                    gameArea.removeChild(bola);
+                    bolas.splice(index, 1);
+                    score += 10;
+                    scoreElement.textContent = `Pontuação: ${score}`;
+                    createBola(); // Criar nova bola
+                }
+            });
+        }
+
+        function gameLoop() {
+            checkCollision();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function startGame() {
+            for (let i = 0; i < 5; i++) {
+                createBola();
+            }
+
+            movePlayer();
+            gameLoop();
+        }
+
+        startGame();
+    </script>
+</body>
+</html>

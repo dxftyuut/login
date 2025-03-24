@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Espada na Caverna</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: sans-serif;
+        }
+
+        #gameArea {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            background-color: #222;
+            border: 2px solid #fff;
+            overflow: hidden;
+        }
+
+        .player {
+            width: 40px;
+            height: 40px;
+            background-color: #00ff00;
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        .sword {
+            width: 10px;
+            height: 40px;
+            background-color: #ff0000;
+            position: absolute;
+            display: none;
+        }
+
+        .monster {
+            width: 40px;
+            height: 40px;
+            background-color: #ff9900;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        #score {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="gameArea">
+        <div class="player" id="player"></div>
+        <div class="sword" id="sword"></div>
+    </div>
+    <div id="score">Pontuação: 0</div>
+
+    <script>
+        const gameArea = document.getElementById('gameArea');
+        const player = document.getElementById('player');
+        const sword = document.getElementById('sword');
+        const scoreElement = document.getElementById('score');
+        let score = 0;
+
+        const gameWidth = gameArea.offsetWidth;
+        const gameHeight = gameArea.offsetHeight;
+        const playerSpeed = 5;
+        let playerX = 380;
+        let playerY = 280;
+
+        const monsters = [];
+
+        // Movimentação do jogador
+        function movePlayer(direction) {
+            if (direction === 'left' && playerX > 0) playerX -= playerSpeed;
+            if (direction === 'right' && playerX < gameWidth - 40) playerX += playerSpeed;
+            if (direction === 'up' && playerY > 0) playerY -= playerSpeed;
+            if (direction === 'down' && playerY < gameHeight - 40) playerY += playerSpeed;
+            player.style.left = playerX + 'px';
+            player.style.top = playerY + 'px';
+        }
+
+        // Atirar espada
+        function attack() {
+            sword.style.left = playerX + 15 + 'px';
+            sword.style.top = playerY - 40 + 'px';
+            sword.style.display = 'block';
+            setTimeout(() => {
+                sword.style.display = 'none';
+            }, 200);
+        }
+
+        // Criar monstros
+        function createMonster() {
+            const monster = document.createElement('div');
+            monster.classList.add('monster');
+            monster.style.left = Math.random() * (gameWidth - 40) + 'px';
+            monster.style.top = Math.random() * (gameHeight - 40) + 'px';
+            gameArea.appendChild(monster);
+            monsters.push(monster);
+        }
+
+        // Verificar colisão da espada com monstros
+        function checkSwordCollision() {
+            monsters.forEach((monster, index) => {
+                const monsterRect = monster.getBoundingClientRect();
+                const swordRect = sword.getBoundingClientRect();
+
+                if (
+                    swordRect.left < monsterRect.right &&
+                    swordRect.right > monsterRect.left &&
+                    swordRect.top < monsterRect.bottom &&
+                    swordRect.bottom > monsterRect.top
+                ) {
+                    // O monstro foi atingido
+                    gameArea.removeChild(monster);
+                    monsters.splice(index, 1);
+                    score += 10;
+                    scoreElement.textContent = `Pontuação: ${score}`;
+                    createMonster(); // Criar novo monstro
+                }
+            });
+        }
+
+        // Movimento dos monstros (simples)
+        function moveMonsters() {
+            monsters.forEach((monster) => {
+                const speed = 1;
+                let monsterX = parseInt(monster.style.left);
+                let monsterY = parseInt(monster.style.top);
+
+                const directionX = Math.random() < 0.5 ? -1 : 1;
+                const directionY = Math.random() < 0.5 ? -1 : 1;
+
+                monsterX += directionX * speed;
+                monsterY += directionY * speed;
+
+                if (monsterX < 0) monsterX = 0;
+                if (monsterX > gameWidth - 40) monsterX = gameWidth - 40;
+                if (monsterY < 0) monsterY = 0;
+                if (monsterY > gameHeight - 40) monsterY = gameHeight - 40;
+
+                monster.style.left = monsterX + 'px';
+                monster.style.top = monsterY + 'px';
+            });
+        }
+
+        // Loop do jogo
+        function gameLoop() {
+            moveMonsters();
+            checkSwordCollision();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Controle de teclas
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowLeft') {
+                movePlayer('left');
+            } else if (event.key === 'ArrowRight') {
+                movePlayer('right');
+            } else if (event.key === 'ArrowUp') {
+                movePlayer('up');
+            } else if (event.key === 'ArrowDown') {
+                movePlayer('down');
+            } else if (event.key === ' ') {
+                attack();
+            }
+        });
+
+        // Iniciar o jogo
+        function startGame() {
+            for (let i = 0; i < 5; i++) {
+                createMonster();
+            }
+            gameLoop();
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
